@@ -46,10 +46,8 @@ client.on('messageCreate', async message => {
     source = source.join('\n');
     var i = source.indexOf("\|\|");
     var j = source.lastIndexOf("\|\|");
-    console.log(i,j);
     if(i!=-1 && j!=-1 && i!=j)
     source = source.substring(i+2,j-i);
-    console.log(source);
 
     axios.post('http://localhost:3000/testing',
         {

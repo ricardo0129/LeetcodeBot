@@ -3,6 +3,7 @@ const app = express()
 const utf8 = require('utf8')
 const x = require('./submit.js')
 const db = require('./db.js')
+const { expToLvl } = require('./math.js')
 
 app.use(express.json())
 
@@ -58,12 +59,20 @@ app.post('/testing',async function(req,res){
     var r1 = await x.createFile(number,input.name,(input.source),input.extension);
     var check = await db.userExist(input.discord_id);
     if(!check){
-       await db.createUser(input.discord_id,input.name);
+        await db.createUser(input.discord_id,input.name);
     }
     var r = await x.submit(r1);
-    var y = await db.addSubmission(input.discord_id,number,"Hard","cpp");
+    var points = await x.getPoints(r,input.problem);
+    var diff = await x.getDifficulity(input.problem);
+    var y = await db.addSubmission(input.discord_id,number,diff,input.extension,(points>0 | 0));
     var s = await db.getStanding(input.discord_id);
-    res.send(r+"\n Your rank is "+s.toString());
+    var correctSubmissions = await db.firstCorrect(input.discord_id,number);
+    if(correctSubmissions==0)
+        var k = await db.addExperience(input.discord_id,points);
+    else 
+        var k = await db.getExperience(input.discord_id);
+    var exp = expToLvl(k);
+    res.send(r+"\n Your rank is "+s.toString()+" Level "+exp[0]+" Exp to next Lvl "+exp[1]);
 })
 
 app.listen(port, () => {

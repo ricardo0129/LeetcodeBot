@@ -10,7 +10,6 @@ module.exports = {
     submit: async function (arr) {
         file = arr[0]; 
         direct = arr[1];
-        console.log(file+" - ");
         const stdout = execSync('leetcode submit '+file).toString();
         await module.exports.deleteFolder(direct);
         console.log('stdout:', stdout);
@@ -19,7 +18,6 @@ module.exports = {
 
     createFile: async function (problem, name, code, ext) {
         var time = await module.exports.createFolder();
-        console.log("here1"+time);
         cmd = 'cd ./'+time+';'+'echo '+"\'"+code+'\' > '+problem+'.'+ext;
         execSync(cmd);
         return ["./"+time+"/"+problem+"."+ext,time];
@@ -49,7 +47,6 @@ module.exports = {
     getNumber: async function (name){
         cmd = "leetcode show \""+name+"\" | head -n 1"
         var line = execSync(cmd).toString()
-        console.log(line)
         var i = line.indexOf("\[")
         var j = line.indexOf("\]")
         var number = line.substr(i+1,j-i-1)
@@ -58,7 +55,7 @@ module.exports = {
 
     getPoints: async function (output,name){
         p = {"Easy":1,"Medium":2,"Hard":3};
-        out = execSync("echo "+output+" | grep \"Accepted\" | wc -l").toString();
+        out = execSync("echo \""+output+"\" | grep \"Accepted\" | wc -l").toString();
         out = out.slice(-2,-1)
         x = await module.exports.getDifficulity(name);
         if(out=='1') return p[x];

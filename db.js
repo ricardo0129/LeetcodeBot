@@ -25,14 +25,35 @@ module.exports = {
     },
 
     addExperience: async function (discord_id,experience){
-        var queryString = "UPDATE users SET experience = (SELECT experience FROM users WHERE discord_id = "+discord_id+")+"+experience+" WHERE discord_id = "+discord_id+";"
+        console.log(discord_id,experience);
+        var queryString = "UPDATE users SET experience = experience + "+experience+" WHERE discord_id = "+discord_id+" RETURNING experience;"
         return pool.query(queryString)
-        .then(res=>console.log(res))
+        .then(res=>{
+            return res.rows[0]['experience'];
+        })
         .catch(e=>console.log(e.stack));
     },
 
-    addSubmission: async function (discord_id,leetcode_id,difficulty,language){
-        var queryString = "INSERT INTO submissions(discordid,time,question,difficulty,language) VALUES ("+discord_id+",NOW(),"+leetcode_id+",\'"+difficulty+"\',\'"+language+"\');"
+    getExperience: async function(discord_id){
+        var queryString = "SELECT experience FROM users WHERE discord_id = "+discord_id+";"
+        return pool.query(queryString)
+        .then(res=>{
+            return res.rows[0]['experience'];
+        })
+        .catch(e=>console.log(e.stack));
+    },
+
+    firstCorrect: async function (discord_id,leetcode_id){
+        var queryString = "SELECT COUNT(question) FROM submissions WHERE discordid = "+discord_id+" AND question = "+leetcode_id+" AND verdict = 1;"
+        return pool.query(queryString)
+        .then(res=>{
+            return res.rows[0]['count'];
+        })
+        .catch(e=>console.log(e.stack));
+    },
+
+    addSubmission: async function (discord_id,leetcode_id,difficulty,language,verdict){
+        var queryString = "INSERT INTO submissions(discordid,time,question,difficulty,language,verdict) VALUES ("+discord_id+",NOW(),"+leetcode_id+",\'"+difficulty+"\',\'"+language+"\',"+verdict+");"
         return pool.query(queryString)
         .then(res=>console.log(res))
         .catch(e=>console.error(e.stack));
@@ -48,7 +69,7 @@ module.exports = {
     },
 
     getRankings: async function (){
-        var queryString = "SELECT *, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(distinct submissions.question) as subs from users left join submissions on(users.discord_id = submissions.discordid) group by users.discord_id) as subb;"
+        var queryString = "SELECT *, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(distinct submissions.question) as subs from users left join submissions on(users.discord_id = submissions.discordid) WHERE verdict = 1 group by users.discord_id) as subb;"
         return pool.query(queryString)
         .then(res=>{
             return res.rows;
@@ -60,7 +81,7 @@ module.exports = {
     SELECT *, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(distinct submissions.question) as subs from users left join submissions on(users.discord_id = submissions.discordid) group by users.discord_id) as subb;
     */
     getStanding: async function (discord_id){
-        var queryString = "SELECT * from (select discord_id, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(distinct submissions.question) as subs from users left join submissions on(users.discord_id = submissions.discordid) group by users.discord_id) as subb) as temp  where discord_id="+discord_id       
+        var queryString = "SELECT * from (select discord_id, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(distinct submissions.question) as subs from users left join submissions on(users.discord_id = submissions.discordid) WHERE verdict = 1 group by users.discord_id) as subb) as temp  where discord_id="+discord_id       
         return pool.query(queryString)
         .then(res=>{
             return res.rows[0]['rank'];
