@@ -24,8 +24,15 @@ module.exports = {
         .catch(e=>console.error(e.stack));
     },
 
-    addSubmission: async function (discord_id,leetcode_id){
-        var queryString = "INSERT INTO submissions(discordid,time,question) VALUES ("+discord_id+",NOW(),"+leetcode_id+");"
+    addExperience: async function (discord_id,experience){
+        var queryString = "UPDATE users SET experience = (SELECT experience FROM users WHERE discord_id = "+discord_id+")+"+experience+" WHERE discord_id = "+discord_id+";"
+        return pool.query(queryString)
+        .then(res=>console.log(res))
+        .catch(e=>console.log(e.stack));
+    },
+
+    addSubmission: async function (discord_id,leetcode_id,difficulty,language){
+        var queryString = "INSERT INTO submissions(discordid,time,question,difficulty,language) VALUES ("+discord_id+",NOW(),"+leetcode_id+",\'"+difficulty+"\',\'"+language+"\');"
         return pool.query(queryString)
         .then(res=>console.log(res))
         .catch(e=>console.error(e.stack));
@@ -41,7 +48,7 @@ module.exports = {
     },
 
     getRankings: async function (){
-        var queryString = "SELECT discord_id, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(submissions.discordid) as subs from users left join submissions on(users.discord_id = submissions.discordid) group by users.discord_id) as subb;"
+        var queryString = "SELECT *, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(distinct submissions.question) as subs from users left join submissions on(users.discord_id = submissions.discordid) group by users.discord_id) as subb;"
         return pool.query(queryString)
         .then(res=>{
             return res.rows;
@@ -49,11 +56,13 @@ module.exports = {
         .catch(e=>console.error(e.stack));
     },
 
+    /*
+    SELECT *, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(distinct submissions.question) as subs from users left join submissions on(users.discord_id = submissions.discordid) group by users.discord_id) as subb;
+    */
     getStanding: async function (discord_id){
-        var queryString = "SELECT * from (select discord_id, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(submissions.discordid) as subs from users left join submissions on(users.discord_id = submissions.discordid) group by users.discord_id) as subb) as temp  where discord_id="+discord_id       
+        var queryString = "SELECT * from (select discord_id, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(distinct submissions.question) as subs from users left join submissions on(users.discord_id = submissions.discordid) group by users.discord_id) as subb) as temp  where discord_id="+discord_id       
         return pool.query(queryString)
         .then(res=>{
-            console.log(res);
             return res.rows[0]['rank'];
         })
         .catch(e=>console.error(e.stack));

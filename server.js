@@ -52,6 +52,20 @@ app.post('/submit',(req,res)=>{
     //res.send(req.body);
 })
 
+app.post('/testing',async function(req,res){
+    const input = req.body;
+    var number = await x.getNumber(input.problem);
+    var r1 = await x.createFile(number,input.name,(input.source),input.extension);
+    var check = await db.userExist(input.discord_id);
+    if(!check){
+       await db.createUser(input.discord_id,input.name);
+    }
+    var r = await x.submit(r1);
+    var y = await db.addSubmission(input.discord_id,number,"Hard","cpp");
+    var s = await db.getStanding(input.discord_id);
+    res.send(r+"\n Your rank is "+s.toString());
+})
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })

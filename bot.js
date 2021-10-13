@@ -47,11 +47,11 @@ client.on('messageCreate', async message => {
     var i = source.indexOf("\|\|");
     var j = source.lastIndexOf("\|\|");
     console.log(i,j);
-    if(i!=-1 && j!=-1)
+    if(i!=-1 && j!=-1 && i!=j)
     source = source.substring(i+2,j-i);
     console.log(source);
 
-    axios.post('http://localhost:3000/submit',
+    axios.post('http://localhost:3000/testing',
         {
             "name":username, "source":source,"extension":extension,"problem":name,"discord_id":author
         }
@@ -62,5 +62,5 @@ client.on('messageCreate', async message => {
 });
 
 // Login to Discord with your client's token
-key = 'testKey'
+key = 'testkey'
 client.login(key);
