@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 })
 
-app.post('/testing',async function(req,res){
+app.post('/submit',async function(req,res){
     const input = req.body;
     var number = await x.getNumber(input.problem);
     var semester = input.semester;
@@ -40,7 +40,7 @@ app.post('/testing',async function(req,res){
 
 app.get('/leaderboard',async function(req,res){
     res.header("Access-Control-Allow-Origin", "*");
-    var x = await db.getRankings();
+    var x = await db.getRankings(1);
     res.send(x);
 })
 

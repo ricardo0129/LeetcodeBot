@@ -70,9 +70,10 @@ module.exports = {
     },
 
     getRankings: async function(semester){
-        var queryString = "SELECT *, RANK() OVER(ORDER BY subs DESC) from (SELECT users.*, COUNT(distinct submissions.question) as subs from users left join submissions on(users.discord_id = submissions.discordid) WHERE verdict = 1 and semester = "+semester+" group by users.discord_id) as subb;"
+        var queryString = "SELECT *, RANK() OVER(ORDER BY correct DESC) from (SELECT users.*, COUNT(distinct submissions.question) as correct from users left join submissions on(users.discord_id = submissions.discordid) WHERE verdict = 1 and semester = "+semester+" group by users.discord_id) as subb;"
         return pool.query(queryString)
         .then(res=>{
+            console.log(res);
             return res.rows;
         })
         .catch(e=>console.error(e.stack));

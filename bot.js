@@ -48,7 +48,7 @@ client.on('messageCreate', async message => {
     source = source.substring(i+2,j-i);
     source = source.replaceAll("| |","||");
 
-    axios.post('http://localhost:3000/testing',
+    axios.post('http://localhost:3000/submit',
         {
             "name":username, "source":source,"extension":extension,"problem":name,"discord_id":author,"semester":1
         }
@@ -59,5 +59,5 @@ client.on('messageCreate', async message => {
 });
 
 // Login to Discord with your client's token
-key = 'temp'
+key = 'key'
 client.login(key);
