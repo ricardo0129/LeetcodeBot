@@ -18,7 +18,9 @@ module.exports = {
 
     createFile: async function (problem, name, code, ext) {
         var time = await module.exports.createFolder();
-        cmd = 'cd ./'+time+';'+'echo '+"\'"+code+'\' > '+problem+'.'+ext;
+        code = code.replaceAll("\"","\\\"");
+        cmd = "cd ./"+time+";"+"echo "+"\""+code+"\" > "+problem+"."+ext;
+        console.log(cmd);
         execSync(cmd);
         return ["./"+time+"/"+problem+"."+ext,time];
     },

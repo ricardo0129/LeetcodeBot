@@ -14,65 +14,34 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 })
 
-
-app.post('/submit',(req,res)=>{
-    const input = req.body;
-    x.getNumber(input.problem).then(number=>{
-        x.createFile(number,input.name,(input.source),input.extension).then((r1)=>
-        {
-            console.log(input.name)
-            db.userExist(input.discord_id).then(check=>{
-                if(check){
-                    x.submit(r1).then(r =>{
-                        db.addSubmission(input.discord_id,number).then((y)=>{
-                            db.getStanding(input.discord_id).then(s=>{
-                                //console.log(s);
-                                res.send(r+"\nYOUR RANK IS: "+s.toString());
-                            })
-                        })
-                    });
-                }
-                else{
-                    db.createUser(input.discord_id,input.name).then(()=>{
-                        x.submit(r1).then(r =>{
-                            db.addSubmission(input.discord_id,number).then((y)=>{
-                                db.getStanding(input.discord_id).then(s=>{
-                                    //console.log(s);
-                                    res.send(r+"\nYOUR RANK IS: "+s.toString());
-                                })
-                            })
-                        });
-                    })
-                }
-            })
-
-        });
-
-    })
-
-    //res.send(req.body);
-})
-
 app.post('/testing',async function(req,res){
     const input = req.body;
     var number = await x.getNumber(input.problem);
+    var semester = input.semester;
     var r1 = await x.createFile(number,input.name,(input.source),input.extension);
     var check = await db.userExist(input.discord_id);
     if(!check){
         await db.createUser(input.discord_id,input.name);
     }
+    var correctSubmissions = await db.firstCorrect(input.discord_id,number);
     var r = await x.submit(r1);
     var points = await x.getPoints(r,input.problem);
     var diff = await x.getDifficulity(input.problem);
-    var y = await db.addSubmission(input.discord_id,number,diff,input.extension,(points>0 | 0));
-    var s = await db.getStanding(input.discord_id);
-    var correctSubmissions = await db.firstCorrect(input.discord_id,number);
-    if(correctSubmissions==0)
-        var k = await db.addExperience(input.discord_id,points);
-    else 
-        var k = await db.getExperience(input.discord_id);
+    var y = await db.addSubmission(input.discord_id,number,diff,input.extension,(points>0 | 0),semester);
+    var s = await db.getStanding(input.discord_id,semester);
+    if(correctSubmissions==0){
+        await db.addExperience(input.discord_id,points);
+    }
+    var k = await db.getExperience(input.discord_id);
     var exp = expToLvl(k);
+    console.log('exp:'+k);
     res.send(r+"\n Your rank is "+s.toString()+" Level "+exp[0]+" Exp to next Lvl "+exp[1]);
+})
+
+app.get('/leaderboard',async function(req,res){
+    res.header("Access-Control-Allow-Origin", "*");
+    var x = await db.getRankings();
+    res.send(x);
 })
 
 app.listen(port, () => {
