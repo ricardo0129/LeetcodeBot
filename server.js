@@ -40,7 +40,9 @@ app.post('/submit',async function(req,res){
 
 app.get('/leaderboard',async function(req,res){
     res.header("Access-Control-Allow-Origin", "*");
-    var x = await db.getRankings(1);
+    const input = req.query;
+    const semester = input.semester;
+    var x = await db.getRankings(semester+"\n");
     res.send(x);
 })
 
