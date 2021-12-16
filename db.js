@@ -25,7 +25,6 @@ module.exports = {
     },
 
     addExperience: async function (discord_id,experience){
-        console.log("adding here:"+discord_id,experience);
         var queryString = "UPDATE users SET experience = experience + "+experience+" WHERE discord_id = "+discord_id+" RETURNING experience;"
         return pool.query(queryString)
         .then(res=>{
@@ -38,7 +37,6 @@ module.exports = {
         var queryString = "SELECT experience FROM users WHERE discord_id = "+discord_id+";"
         return pool.query(queryString)
         .then(res=>{
-            console.log("asdasd"+res.rows[0]['experience']);
             return res.rows[0]['experience'];
         })
         .catch(e=>console.log(e.stack));
@@ -73,7 +71,7 @@ module.exports = {
         var queryString = "SELECT *, RANK() OVER(ORDER BY correct DESC) from (SELECT users.*, COUNT(distinct submissions.question) as correct from users left join submissions on(users.discord_id = submissions.discordid) WHERE verdict = 1 and semester = "+semester+" group by users.discord_id) as subb;"
         return pool.query(queryString)
         .then(res=>{
-            console.log(res);
+            //console.log(res);
             return res.rows;
         })
         .catch(e=>console.error(e.stack));
