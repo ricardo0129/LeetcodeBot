@@ -29,6 +29,7 @@ client.on('messageCreate', async message => {
     if(message.author.bot) return;
     if(message.channel.name != "bot") return;
     const author = message.author.id;
+    //const author = 314;
     const username = message.author.username;
     const code = message.content;
     const problem = /[\w|\W|\s]*[cpp|java|py3|js|kt][\s]*[|][|][\w|\W|\s]*[|][|]/g;
@@ -54,10 +55,11 @@ client.on('messageCreate', async message => {
         }
     ).then((res)=>{
         res.data = res.data.replaceAll("✔","✅");
+        console.log(res.data);
         message.reply(res.data);
     });
 });
 
 // Login to Discord with your client's token
-key = 'key'
+key = 'test'
 client.login(key);

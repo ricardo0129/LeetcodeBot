@@ -3,7 +3,7 @@ const app = express()
 const utf8 = require('utf8')
 const x = require('./submit.js')
 const db = require('./db.js')
-const { expToLvl } = require('./math.js')
+const { expToLvl, progressBar, ProgressMess } = require('./math.js')
 
 app.use(express.json())
 
@@ -34,8 +34,9 @@ app.post('/submit',async function(req,res){
     }
     var k = await db.getExperience(input.discord_id);
     var exp = expToLvl(k);
-    console.log('exp:'+k);
-    res.send(r+"\n Your rank is "+s.toString()+" Level "+exp[0]+" Exp to next Lvl "+exp[1]);
+    r = r.replaceAll("\n  ","\n");
+    if(!check) res.send("Congrats on your fist Submit!!\n"+r+"Your rank is "+s.toString()+" Level "+exp[0]+" Exp to next Lvl "+exp[1]);
+    else res.send(r+"Ranking #"+s.toString()+" "+ProgressMess(k));
 })
 
 app.get('/leaderboard',async function(req,res){
