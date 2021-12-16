@@ -47,6 +47,16 @@ app.get('/leaderboard',async function(req,res){
     res.send(x);
 })
 
+app.get('/rank', async function(req,res){
+    res.header("Access-Control-Allow-Origin", "*");
+    const input = req.query;
+    console.log(input);
+    console.log(input.discord_id+input.semester);
+    var k  = await db.getExperience(input.discord_id);
+    var s = await db.getStanding(input.discord_id,input.semester);
+    res.send("Rank #"+s.toString()+" "+ProgressMess(k));
+})
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })

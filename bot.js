@@ -6,24 +6,12 @@ const { Client, Intents } = require('discord.js');
 // Create a new client instance
 const client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES", "DIRECT_MESSAGES"], partials: ["CHANNEL"] });
 
-
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
 	console.log('Ready!');
     client.channels.cache.get('920356150006919248').send('pong');
 });
 
-client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
-
-	const { commandName } = interaction;
-
-	if (commandName === 'ping') {
-		await interaction.reply('Pong!');
-	} else if (commandName === 'beep') {
-		await interaction.reply('Boop!');   
-	}
-});
 
 client.on('messageCreate', async message => {
     if(message.author.bot) return;
@@ -61,5 +49,5 @@ client.on('messageCreate', async message => {
 });
 
 // Login to Discord with your client's token
-key = 'test'
+key = process.env.botKey;
 client.login(key);
