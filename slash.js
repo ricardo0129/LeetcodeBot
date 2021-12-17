@@ -58,11 +58,12 @@ client.on('interactionCreate',async interaction=>{
     if(!command) return;
     try{
         const author =  interaction.user.id;
-        console.log(author);
+        const name = interaction.user.name;
         axios.get('http://localhost:3000/rank',
         {
             params: {
             discord_id: author,
+            name: name,
             semester: 1
             }
         }).then(res=>{
